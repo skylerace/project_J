@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Jarvis — Demo Script</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c0f;
+  --card: #111318;
+  --card2: #171b21;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e8e4d9;
+  --text2: #7a7870;
+  --text3: #3d3c38;
+  --accent: #c8f0a0;
+  --accent2: #a3d977;
+  --amber: #f0d080;
+  --blue: #90c8f0;
+  --red: #f09090;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html { background: var(--bg); }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+/* HEADER */
+.header {
+  padding: 52px 20px 24px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.header-eyebrow {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.header-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.1;
+}
+.header-sub {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 5px;
+}
+
+/* PROGRESS BAR */
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.progress-bar-bg {
+  flex: 1;
+  height: 2px;
+  background: var(--border2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width .4s ease;
+  width: 0%;
+}
+.progress-label {
+  font-size: 10px;
+  color: var(--text2);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* NAV PILLS */
+.nav-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 14px 20px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.nav-scroll::-webkit-scrollbar { display: none; }
+.nav-pill {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 0.5px solid var(--border2);
+  background: var(--card);
+  color: var(--text2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.nav-pill.active {
+  background: var(--accent);
+  color: #0a1a03;
+  border-color: var(--accent);
+}
+
+/* SECTIONS */
+.section {
+  display: none;
+  padding: 20px;
+  animation: fadeUp .25s ease;
+}
+.section.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* OVERVIEW SECTION */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+.tl-item {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  cursor: pointer;
+}
+.tl-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 28px;
+  flex-shrink: 0;
+}
+.tl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  background: var(--card);
+  margin-top: 14px;
+  flex-shrink: 0;
+  transition: all .2s;
+}
+.tl-item.done .tl-dot { background: var(--accent); border-color: var(--accent); }
+.tl-item.current .tl-dot { background: var(--amber); border-color: var(--amber); box-shadow: 0 0 8px rgba(240,208,128,0.4); }
+.tl-line {
+  flex: 1;
+  width: 1px;
+  background: var(--border);
+  margin-top: 4px;
+}
+.tl-item:last-child .tl-line { display: none; }
+.tl-card {
+  flex: 1;
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  transition: border-color .15s;
+}
+.tl-item.current .tl-card { border-color: rgba(240,208,128,0.3); }
+.tl-item.done .tl-card { border-color: rgba(200,240,160,0.2); }
+.tl-header { display: flex; align-items: center; justify-content: space-between; }
+.tl-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.tl-time {
+  font-size: 10px;
+  color: var(--text2);
+  background: var(--card2);
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+.tl-item.done .tl-title { color: var(--text2); }
+.tl-tag {
+  font-size: 10px;
+  margin-top: 4px;
+  color: var(--text2);
+}
+.tl-item.current .tl-tag { color: var(--amber); }
+.tl-item.done .tl-tag { color: var(--text3); }
+
+/* STEP CARDS */
+.step-card {
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.step-header {
+  padding: 14px 16px 12px;
+  border-bottom: 0.5px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.step-num {
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--card2);
+  color: var(--text2);
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.step-title { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.3; }
+.step-body { padding: 14px 16px; }
+
+/* DIRECTION BLOCK */
+.direction {
+  font-size: 11px;
+  color: var(--blue);
+  background: rgba(144,200,240,0.07);
+  border-left: 2px solid rgba(144,200,240,0.3);
+  border-radius: 0 6px 6px 0;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  line-height: 1.55;
+}
+
+/* LINES TO SAY */
+.say-block {
+  background: var(--card2);
+  border-radius: 8px;
+  padding: 13px 14px;
+  margin-bottom: 10px;
+  border-left: 2px solid var(--accent);
+}
+.say-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 7px;
+}
+.say-text {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  font-style: italic;
+}
+
+/* PAUSE BLOCK */
+.pause-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(240,208,128,0.06);
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+.pause-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  flex-shrink: 0;
+}
+.pause-text { font-size: 11px; color: var(--amber); line-height: 1.4; }
+
+/* ACTION BLOCK */
+.action-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 10px;
+  background: rgba(200,240,160,0.06);
+  border: 0.5px solid rgba(200,240,160,0.15);
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+.action-arrow {
+  font-size: 12px;
+  color: var(--accent);
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.action-text { font-size: 12px; color: var(--accent); line-height: 1.5; font-weight: 500; }
+
+/* SECTION LABEL */
+.sec-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+  margin-top: 4px;
+}
+
+/* QA CARDS */
+.qa-card {
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.qa-q {
+  padding: 13px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  gap: 10px;
+}
+.qa-q-text { flex: 1; line-height: 1.4; }
+.qa-chevron {
+  font-size: 14px;
+  color: var(--text2);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+.qa-card.open .qa-chevron { transform: rotate(180deg); }
+.qa-a {
+  display: none;
+  padding: 0 14px 13px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.65;
+  border-top: 0.5px solid var(--border);
+  padding-top: 12px;
+}
+.qa-card.open .qa-a { display: block; }
+.qa-a strong { color: var(--text); font-weight: 500; }
+
+/* DONE BUTTON */
+.done-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: #0a1a03;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: opacity .15s;
+}
+.done-btn:active { opacity: .8; }
+.done-btn.completed {
+  background: var(--card2);
+  color: var(--text2);
+}
+
+/* DIVIDER */
+.divider {
+  height: 0.5px;
+  background: var(--border);
+  margin: 16px 0;
+}
+
+/* KEY LINE */
+.key-line {
+  background: linear-gradient(135deg, rgba(200,240,160,0.08), rgba(200,240,160,0.03));
+  border: 0.5px solid rgba(200,240,160,0.2);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 16px 0;
+  text-align: center;
+}
+.key-line-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.key-line-text {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* TIMING OVERVIEW */
+.timing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.timing-card {
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.timing-label { font-size: 10px; color: var(--text2); margin-bottom: 3px; }
+.timing-val { font-size: 13px; font-weight: 500; color: var(--text); }
+.timing-time { font-size: 10px; color: var(--accent); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">Jarvis CRE · Demo script</div>
+  <div class="header-title">12-Minute Playbook</div>
+  <div class="header-sub">Title sales executives · VPs · C-suite</div>
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label">0 / 5 acts</div>
+  </div>
+</div>
+
+<div class="nav-scroll">
+  <div class="nav-pill active" onclick="showSection('overview',this)">Overview</div>
+  <div class="nav-pill" onclick="showSection('prep',this)">Prep</div>
+  <div class="nav-pill" onclick="showSection('open',this)">Opening</div>
+  <div class="nav-pill" onclick="showSection('act1',this)">Act 1</div>
+  <div class="nav-pill" onclick="showSection('act2',this)">Act 2</div>
+  <div class="nav-pill" onclick="showSection('act3',this)">Act 3</div>
+  <div class="nav-pill" onclick="showSection('act4',this)">Act 4</div>
+  <div class="nav-pill" onclick="showSection('close',this)">Close</div>
+  <div class="nav-pill" onclick="showSection('qa',this)">Q&A</div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section active" id="section-overview">
+  <div class="timing-grid">
+    <div class="timing-card"><div class="timing-label">Total time</div><div class="timing-val">12 min</div></div>
+    <div class="timing-card"><div class="timing-label">Goal</div><div class="timing-val" style="font-size:11px;line-height:1.4">"I want this for my team"</div></div>
+    <div class="timing-card"><div class="timing-label">Audience</div><div class="timing-val" style="font-size:11px;line-height:1.4">Execs · VPs · C-suite</div></div>
+    <div class="timing-card"><div class="timing-label">Start screen</div><div class="timing-val" style="font-size:11px">Morning Brief</div></div>
+  </div>
+
+  <div class="key-line">
+    <div class="key-line-label">The one line to remember</div>
+    <div class="key-line-text">"Every rep on your team, with the intelligence of your best rep, from the moment they open their laptop."</div>
+  </div>
+
+  <div class="sec-label">Flow</div>
+  <div class="timeline" id="timeline">
+    <div class="tl-item" onclick="showSection('prep', document.querySelector('.nav-pill:nth-child(2)'))">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-card"><div class="tl-header"><span class="tl-title">Before they walk in</span><span class="tl-time">—</span></div><div class="tl-tag">Setup · Morning Brief on screen</div></div>
+    </div>
+    <div class="tl-item" onclick="showSection('open', document.querySelector('.nav-pill:nth-child(3)'))">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-card"><div class="tl-header"><span class="tl-title">Opening</span><span class="tl-time">90s</span></div><div class="tl-tag">Don't touch the screen yet</div></div>
+    </div>
+    <div class="tl-item" onclick="showSection('act1', document.querySelector('.nav-pill:nth-child(4)'))">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-card"><div class="tl-header"><span class="tl-title">Act 1 — Morning brief</span><span class="tl-time">2 min</span></div><div class="tl-tag">Metrics · LLC dissolution alert</div></div>
+    </div>
+    <div class="tl-item" onclick="showSection('act2', document.querySelector('.nav-pill:nth-child(5)'))">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-card"><div class="tl-header"><span class="tl-title">Act 2 — CLIP deep dive</span><span class="tl-time">3 min</span></div><div class="tl-tag">Full CLIP report · Parcel explorer</div></div>
+    </div>
+    <div class="tl-item" onclick="showSection('act3', document.querySelector('.nav-pill:nth-child(6)'))">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-card"><div class="tl-header"><span class="tl-title">Act 3 — Key players</span><span class="tl-time">2 min</span></div><div class="tl-tag">Michael Testa · Call script</div></div>
+    </div>
+    <div class="tl-item" onclick="showSection('act4', document.querySelector('.nav-pill:nth-child(7)'))">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-card"><div class="tl-header"><span class="tl-title">Act 4 — Live question</span><span class="tl-time">2 min</span></div><div class="tl-tag">Let them drive</div></div>
+    </div>
+    <div class="tl-item" onclick="showSection('close', document.querySelector('.nav-pill:nth-child(8)'))">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-card"><div class="tl-header"><span class="tl-title">Close</span><span class="tl-time">90s</span></div><div class="tl-tag">Step away · Let silence work</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PREP -->
+<div class="section" id="section-prep">
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">Before</div>
+      <div class="step-title">Setup before they walk in</div>
+    </div>
+    <div class="step-body">
+      <div class="action-block"><div class="action-arrow">→</div><div class="action-text">Jarvis open on TV · Morning Brief screen visible</div></div>
+      <div class="action-block"><div class="action-arrow">→</div><div class="action-text">Browser fullscreen (F11) · zoomed so back row can read</div></div>
+      <div class="action-block"><div class="action-arrow">→</div><div class="action-text">Python launcher running · terminal shows green</div></div>
+      <div class="action-block"><div class="action-arrow">→</div><div class="action-text">Fire one test query in AI chat to warm up the API</div></div>
+      <div class="divider"></div>
+      <div class="direction">Don't hide the screen while people sit down. Let them see it and get curious before you say a word.</div>
+    </div>
+  </div>
+</div>
+
+<!-- OPENING -->
+<div class="section" id="section-open">
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">Open</div>
+      <div class="step-title">The question — back to screen, eyes on room</div>
+    </div>
+    <div class="step-body">
+      <div class="direction">Stand at the front. Don't touch the screen yet. Make eye contact.</div>
+      <div class="say-block">
+        <div class="say-label">Say this</div>
+        <div class="say-text">"Before I show you anything, I want to ask you one question. Think about your single best commercial title sales rep — the one who consistently brings in the most business. What do they do differently than everyone else on your team?"</div>
+      </div>
+      <div class="pause-block"><div class="pause-dot"></div><div class="pause-text">Wait. Let them answer. You'll hear: "they know everybody" · "they're always ahead of the market" · "they hustle." Nod.</div></div>
+      <div class="say-block">
+        <div class="say-label">Then say</div>
+        <div class="say-text">"Every answer you just gave me is an intelligence problem. Your best rep wins because they know more, sooner, than everyone else in the room. That intelligence is scattered across RCA, CoStar, Cotality, county records, and years of memory. Pulling it together takes hours. What I'm about to show you is what happens when every rep on your team has that same edge — in ten seconds."</div>
+      </div>
+      <div class="direction">Turn to the screen for the first time.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ACT 1 -->
+<div class="section" id="section-act1">
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">Act 1 · 2 min</div>
+      <div class="step-title">Morning brief — you're on this screen</div>
+    </div>
+    <div class="step-body">
+      <div class="say-block">
+        <div class="say-label">Say this</div>
+        <div class="say-text">"This is what Jarvis shows your rep when they open their laptop at 8am. Not a generic dashboard. Intelligence synthesized overnight from three sources — RCA transaction history, CoStar active listings, and Cotality's CLIP database. 153 million parcels. Every commercial structure in the country. All tied together by a permanent parcel ID."</div>
+      </div>
+      <div class="direction">Point to the four metric cards across the top.</div>
+      <div class="say-block">
+        <div class="say-label">Say this</div>
+        <div class="say-text">"$284 million in Q1 Lake County volume. 47 active listings. 23 parcels flagged with 7-plus year hold periods — Cotality telling us who is statistically overdue to sell. And a $148 million predicted Q2 pipeline. Before your rep makes a single call."</div>
+      </div>
+      <div class="direction">Point to the Priority Alerts card. Point to the first alert — the LLC dissolution.</div>
+      <div class="say-block">
+        <div class="say-label">Say this</div>
+        <div class="say-text">"First alert this morning — an LLC dissolved on March 22nd. That's a Cotality CLIP ownership event. Jarvis saw a legal entity change on a 3.2-acre industrial parcel in Libertyville, cross-referenced the RCA ownership history, checked CoStar for an active listing — there isn't one yet — and flagged it as a score-94 deal signal. 94 out of 100 likelihood this property trades in 2026."</div>
+      </div>
+      <div class="pause-block"><div class="pause-dot"></div><div class="pause-text">Pause two full seconds. Look at the room, not the screen.</div></div>
+      <div class="say-block">
+        <div class="say-label">Then say</div>
+        <div class="say-text">"Your competitor's rep doesn't know about this yet. This rep does. At 8am."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACT 2 -->
+<div class="section" id="section-act2">
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">Act 2 · 3 min</div>
+      <div class="step-title">CLIP deep dive</div>
+    </div>
+    <div class="step-body">
+      <div class="action-block"><div class="action-arrow">→</div><div class="action-text">Click "Full CLIP report ↗" on the LLC dissolution alert</div></div>
+      <div class="direction">Chat panel opens. Jarvis starts responding. While it types:</div>
+      <div class="say-block">
+        <div class="say-label">Say this while it loads</div>
+        <div class="say-text">"I just asked Jarvis to pull everything it knows about this parcel. Watch what comes back — RCA transaction history, the Cotality AVM showing the property is worth $5.8 million against a $4.1 million last sale, CoStar confirming no listing exists yet, and a specific recommended action. All from one click."</div>
+      </div>
+      <div class="direction">When the response finishes — find the recommended action at the bottom. Read it out loud word for word.</div>
+      <div class="say-block">
+        <div class="say-label">Then say</div>
+        <div class="say-text">"It just told my rep exactly who to call, what to say, and why today is the right moment. That's not a search result. That's a senior analyst working for every rep on your team — simultaneously."</div>
+      </div>
+      <div class="divider"></div>
+      <div class="action-block"><div class="action-arrow">→</div><div class="action-text">Click "CLIP Parcel Explorer" in the left nav</div></div>
+      <div class="say-block">
+        <div class="say-label">Say this</div>
+        <div class="say-text">"Every parcel in Lake County has a CLIP ID — Cotality's permanent universal identifier. It's the key that links RCA, CoStar, and Cotality together for any property in the country."</div>
+      </div>
+      <div class="action-block"><div class="action-arrow">→</div><div class="action-text">Click Detail ↗ on 800 N. Route 41, Waukegan</div></div>
+      <div class="say-block">
+        <div class="say-label">Say this</div>
+        <div class="say-text">"This one has been sitting on CoStar for 312 days. Price cut 14%. RCA shows the owner bought it in 2015 — that's an 11-year hold. Cotality AVM is right at the new ask price. Three data sources telling the same story — motivated seller."</div>
+      </div>
+      <div class="action-block"><div class="action-arrow">→</div><div class="action-text">Click "Full Jarvis brief ↗" on the detail panel</div></div>
+      <div class="say-block">
+        <div class="say-label">Say this while it loads</div>
+        <div class="say-text">"Jarvis is going to tell us who the listing broker is and exactly what to say when I call them today."</div>
+      </div>
+      <div class="direction">When response loads — read the broker name and opening line of the script aloud.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ACT 3 -->
+<div class="section" id="section-act3">
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">Act 3 · 2 min</div>
+      <div class="step-title">Key players — Michael Testa</div>
+    </div>
+    <div class="step-body">
+      <div class="action-block"><div class="action-arrow">→</div><div class="action-text">Click "Key Players" in the left nav</div></div>
+      <div class="say-block">
+        <div class="say-label">Say this</div>
+        <div class="say-text">"The second thing great reps do is know the right people. Jarvis ranks every commercial broker, agent, and attorney in Lake County by a priority score built from their RCA deal count, average deal size, and how recently they've been active."</div>
+      </div>
+      <div class="direction">Point to Michael Testa at the top — score 95.</div>
+      <div class="say-block">
+        <div class="say-label">Say this</div>
+        <div class="say-text">"Michael Testa. Attorney. 12 commercial closings in Q1 alone, averaging $3.2 million each. Our highest priority score in the county. And zero of those deals went through our title company."</div>
+      </div>
+      <div class="pause-block"><div class="pause-dot"></div><div class="pause-text">Let that land. Then:</div></div>
+      <div class="say-block">
+        <div class="say-label">Then say</div>
+        <div class="say-text">"That's not just an opportunity. That's a gap we can close — and Jarvis just told us exactly who he is."</div>
+      </div>
+      <div class="action-block"><div class="action-arrow">→</div><div class="action-text">Click "Research + script ↗" on Testa</div></div>
+      <div class="say-block">
+        <div class="say-label">Say this while it loads</div>
+        <div class="say-text">"It's now searching the web for his contact information, pulling his deal history from RCA, and writing a personalized call script that references his actual transactions. Not a generic pitch — a conversation opener that shows him we've done our homework."</div>
+      </div>
+      <div class="direction">When response loads — read the first two sentences of the call script aloud.</div>
+      <div class="say-block">
+        <div class="say-label">Then say</div>
+        <div class="say-text">"That's what your rep says when they call Michael Testa this afternoon."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACT 4 -->
+<div class="section" id="section-act4">
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">Act 4 · 2 min</div>
+      <div class="step-title">Live question — let them drive</div>
+    </div>
+    <div class="step-body">
+      <div class="direction">Turn back to the room. Smile. This is the most powerful moment.</div>
+      <div class="say-block">
+        <div class="say-label">Say this</div>
+        <div class="say-text">"I want to show you one more thing — and I'm going to let you drive it. Give me a real question. A property, a broker name, a market question — anything you'd actually want to know about Lake County commercial real estate right now."</div>
+      </div>
+      <div class="direction">Take their question. Type it into the chat input. Hit send.</div>
+      <div class="say-block">
+        <div class="say-label">While it loads</div>
+        <div class="say-text">"This is a live AI with web search. It's not pulling from a fixed script — it's reasoning across the data in real time."</div>
+      </div>
+      <div class="direction">When it responds — read the key insight aloud. Then:</div>
+      <div class="say-block">
+        <div class="say-label">Then say</div>
+        <div class="say-text">"That's the answer your rep gets in ten seconds instead of two hours."</div>
+      </div>
+      <div class="pause-block"><div class="pause-dot"></div><div class="pause-text">If the room goes quiet after this, just move to the close. Don't fill silence with more demo.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLOSE -->
+<div class="section" id="section-close">
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">Close · 90s</div>
+      <div class="step-title">Step away from the screen</div>
+    </div>
+    <div class="step-body">
+      <div class="direction">Face the room. Don't look at the screen. Slow down here.</div>
+      <div class="say-block">
+        <div class="say-label">Say this</div>
+        <div class="say-text">"What you just saw is running right now, on a laptop, powered by the same commercial data your company already has access to through RCA, CoStar, and Cotality."</div>
+      </div>
+      <div class="say-block">
+        <div class="say-label">Then say — slow down here</div>
+        <div class="say-text">"Your best rep already does a version of this manually. They spend two or three hours a day piecing this picture together. What would they do with those hours back? And what would your average rep be capable of — if they had the same intelligence your best rep has spent a decade building?"</div>
+      </div>
+      <div class="pause-block"><div class="pause-dot"></div><div class="pause-text">One beat of silence.</div></div>
+      <div class="say-block">
+        <div class="say-label">Close with this</div>
+        <div class="say-text">"That's Jarvis. Not a replacement for your reps. A force multiplier for all of them."</div>
+      </div>
+      <div class="pause-block"><div class="pause-dot"></div><div class="pause-text">Stop. Don't fill the silence. Let them respond. If the room goes quiet, add this one line only if needed:</div></div>
+      <div class="say-block">
+        <div class="say-label">If needed</div>
+        <div class="say-text">"The question I'd want answered if I were sitting where you are — is how fast can we get this in front of our team."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="key-line">
+    <div class="key-line-label">If you lose your place — come back to this</div>
+    <div class="key-line-text">"Every rep on your team, with the intelligence of your best rep, from the moment they open their laptop."</div>
+  </div>
+</div>
+
+<!-- Q&A -->
+<div class="section" id="section-qa">
+  <div class="sec-label">Tap to expand answers</div>
+
+  <div class="qa-card" onclick="toggleQA(this)">
+    <div class="qa-q"><span class="qa-q-text">"How does it get our actual data?"</span><span class="qa-chevron">›</span></div>
+    <div class="qa-a">In production, Jarvis connects directly to your RCA feed, your CoStar subscription, and Cotality's CLIP API. Everything you saw today uses real Lake County data structures — the production version replaces the demo records with your live feed.</div>
+  </div>
+
+  <div class="qa-card" onclick="toggleQA(this)">
+    <div class="qa-q"><span class="qa-q-text">"What does this cost?"</span><span class="qa-chevron">›</span></div>
+    <div class="qa-a">That's the conversation I want to have with you — the build cost depends on what integrations you already have licensed. What I can tell you is the ROI math is straightforward: <strong>if this tool helps each rep identify two additional closings per quarter, the tool pays for itself in the first month.</strong></div>
+  </div>
+
+  <div class="qa-card" onclick="toggleQA(this)">
+    <div class="qa-q"><span class="qa-q-text">"How long to build?"</span><span class="qa-chevron">›</span></div>
+    <div class="qa-a">The prototype you saw today took days, not months. A production version with your live data connections is a <strong>60 to 90 day build.</strong> The hardest part is already done — the intelligence layer, the scoring model, the UX.</div>
+  </div>
+
+  <div class="qa-card" onclick="toggleQA(this)">
+    <div class="qa-q"><span class="qa-q-text">"Is this secure? Our data is sensitive."</span><span class="qa-chevron">›</span></div>
+    <div class="qa-a">Completely valid concern. The production architecture runs entirely within your own infrastructure — your API keys, your servers. <strong>Your data never leaves your environment.</strong> The AI processes queries but doesn't store or train on your proprietary data.</div>
+  </div>
+
+  <div class="qa-card" onclick="toggleQA(this)">
+    <div class="qa-q"><span class="qa-q-text">"We already have CoStar / RCA tools."</span><span class="qa-chevron">›</span></div>
+    <div class="qa-a">Exactly — and that's the point. You're paying for those tools but your reps are spending hours manually pulling data across them. <strong>Jarvis doesn't replace those subscriptions. It makes them 10x more useful</strong> by connecting them together and surfacing the insight automatically.</div>
+  </div>
+
+  <div class="qa-card" onclick="toggleQA(this)">
+    <div class="qa-q"><span class="qa-q-text">"Can it work for other markets, not just Lake County?"</span><span class="qa-chevron">›</span></div>
+    <div class="qa-a">Yes — Cotality CLIP covers 153 million parcels nationally. The Lake County build is the proof of concept. <strong>The same model scales to any market</strong> where you have RCA and CoStar coverage, which is most of the US.</div>
+  </div>
+
+  <div class="qa-card" onclick="toggleQA(this)">
+    <div class="qa-q"><span class="qa-q-text">"What if the AI gets something wrong?"</span><span class="qa-chevron">›</span></div>
+    <div class="qa-a">Great question — and it's the right one to ask. Jarvis always cites which data source it's drawing from: RCA, CoStar, or Cotality CLIP. Your rep can verify any claim in seconds. <strong>It's a starting point, not a final answer</strong> — but it's a starting point that used to take three hours to reach.</div>
+  </div>
+</div>
+
+<script>
+const SECTIONS = ['overview','prep','open','act1','act2','act3','act4','close','qa'];
+const ACTS = ['prep','open','act1','act2','act3','act4','close'];
+let completedActs = new Set();
+
+function showSection(id, pill) {
+  SECTIONS.forEach(s => {
+    document.getElementById('section-'+s).classList.remove('active');
+  });
+  document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  if (pill) pill.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function toggleQA(card) {
+  card.classList.toggle('open');
+}
+
+function updateProgress() {
+  const total = ACTS.length;
+  const done = completedActs.size;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = done + ' / ' + total + ' acts';
+}
+
+// Nav pills — map index to section id
+document.querySelectorAll('.nav-pill').forEach((pill, i) => {
+  pill.addEventListener('click', function() {
+    showSection(SECTIONS[i], this);
+  });
+});
+
+// Swipe between sections
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (Math.abs(dx) < 50) return;
+  const active = SECTIONS.findIndex(s => document.getElementById('section-'+s).classList.contains('active'));
+  if (dx < 0 && active < SECTIONS.length - 1) {
+    const next = active + 1;
+    showSection(SECTIONS[next], document.querySelectorAll('.nav-pill')[next]);
+  } else if (dx > 0 && active > 0) {
+    const prev = active - 1;
+    showSection(SECTIONS[prev], document.querySelectorAll('.nav-pill')[prev]);
+  }
+}, {passive:true});
+
+updateProgress();
+</script>
+</body>
+</html>
